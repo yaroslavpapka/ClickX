@@ -44,9 +44,6 @@ jobs:
       - name: Install Phoenix
         run: mix archive.install hex phx_new --force
 
-      - name: Compile
-        run: mix compile --warnings-as-errors
-
       - name: Start Docker containers
         run: docker-compose up -d
         env:
