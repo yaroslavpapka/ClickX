@@ -25,6 +25,13 @@ services:
       POSTGRES_DB: clickhouse_metrics
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    command: >
+      bash -c "
+      docker-entrypoint.sh postgres &
+      sleep 5 &&
+      psql -U postgres -c 'CREATE DATABASE clickhouse_metrics_test;' &&
+      wait"
+
 
 volumes:
   clickhouse_data:

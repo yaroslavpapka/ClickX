@@ -6,12 +6,12 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :clickhouse_metrics, ClickhouseMetrics.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "clickhouse_metrics_test#{System.get_env("MIX_TEST_PARTITION")}",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: System.schedulers_online() * 2
+  database: System.get_env("POSTGRES_DATABASE", "clickhouse_metrics_test"),
+  username: System.get_env("POSTGRES_USERNAME", "postgres"),
+  password: System.get_env("POSTGRES_PASSWORD", "secret"),
+  hostname: System.get_env("POSTGRES_HOSTNAME", "localhost"),
+  port: String.to_integer(System.get_env("POSTGRES_PORT", "5431")),
+  pool: Ecto.Adapters.SQL.Sandbox
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
