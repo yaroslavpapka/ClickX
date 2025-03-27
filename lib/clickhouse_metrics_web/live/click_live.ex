@@ -8,14 +8,19 @@ defmodule ClickhouseMetricsWeb.ClickLive do
 
   def render(assigns) do
     ~H"""
-    <div class="flex items-center justify-center h-screen">
+    <div class="flex flex-col items-center justify-center h-screen">
+      <div class="absolute top-4 right-4">
+        <a href="/click_chart" class="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md">
+          Go to Click Chart
+        </a>
+      </div>
+
       <button phx-click="click" class="px-6 py-3 bg-blue-500 text-white rounded-lg shadow-lg">
         Click me
       </button>
     </div>
     """
   end
-
   def handle_event("click", _params, socket) do
     with %{browser: browser, os: device} <- UserAgentParser.parse(socket.assigns.user_agent),
          :ok <- MetricsStore.add_click(socket.assigns.ip, socket.assigns.user_agent, browser, device) do
