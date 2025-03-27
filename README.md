@@ -1,5 +1,10 @@
 # Clickhouse Metrics Tracker
 
+## Video Presentation
+
+Watch the introduction and demo of Clickhouse Metrics Tracker here:  
+[![Clickhouse Metrics Tracker Demo](https://img.youtube.com/vi/yfUdwzG2ao4/0.jpg)](https://youtu.be/yfUdwzG2ao4)
+
 ## Overview
 
 The **Clickhouse Metrics Tracker** is a web application built with **Elixir Phoenix LiveView** that records and visualizes user interactions. The system logs button clicks, capturing details such as the device, IP address, and browser information. Data is stored in **PostgreSQL** and periodically inserted into **ClickHouse** for efficient analytics.
