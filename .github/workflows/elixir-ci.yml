@@ -44,13 +44,16 @@ jobs:
       - name: Install Phoenix
         run: mix archive.install hex phx_new --force
 
+      - name: Install Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
       - name: Start Docker containers
-        run: docker-compose up -d
+        run: sudo docker-compose up -d
         env:
           MIX_ENV: test
 
       - name: Wait for services to be ready
-        run: sleep 10
+        run: sleep 100
 
       - name: Run migrations 
         run: mix ecto.migrate
@@ -61,4 +64,4 @@ jobs:
         run: mix test --color
 
       - name: Stop Docker containers
-        run: docker-compose down
+        run: sudo docker-compose down
