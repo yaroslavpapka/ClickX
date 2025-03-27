@@ -20,6 +20,18 @@ defmodule ClickhouseMetricsWeb.ClickChartLive do
     )}
   end
 
+  def handle_event("filter", %{"browser" => "", "ip" => ""}, socket) do
+    handle_event("filter", %{"browser" => nil, "ip" => nil}, socket)
+  end
+
+  def handle_event("filter", %{"browser" => "", "ip" => ip}, socket) do
+    handle_event("filter", %{"browser" => nil, "ip" => ip}, socket)
+  end
+
+  def handle_event("filter", %{"browser" => browser, "ip" => ""}, socket) do
+    handle_event("filter", %{"browser" => browser, "ip" => nil}, socket)
+  end
+
   def handle_event("filter", %{"browser" => browser, "ip" => ip}, socket) do
     {:noreply, assign(socket,
       selected_browser: browser,
