@@ -13,14 +13,7 @@ config :clickhouse_metrics,
 
 config :clickhouse_metrics, Oban,
   repo: ClickhouseMetrics.Repo,
-  queues: [clicks: 10],
-  plugins: [
-    {Oban.Plugins.Pruner, max_age: 60 * 60 * 24},
-    {Oban.Plugins.Cron,
-    crontab: [
-      {"*/1 * * * *", ClickhouseMetrics.MetricsInserterWorker}
-    ]}
-  ]
+  queues: [clicks: 10]
 
 config :clickhouse_metrics,
   clickhouse: [

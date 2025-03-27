@@ -8,41 +8,39 @@ defmodule ClickhouseMetricsWeb.ClickChartLive do
       chart_svg: render_chart(:browser),
       browsers: ClickhouseMetrics.unique_values("browser"),
       ips: ClickhouseMetrics.unique_values("ip"),
+      devices: ClickhouseMetrics.unique_values("device"),
       selected_browser: nil,
-      selected_ip: nil
+      selected_ip: nil,
+      selected_device: nil
     )}
   end
 
   def handle_event("change_chart", %{"chart" => chart}, socket) do
     {:noreply, assign(socket,
       selected_chart: String.to_atom(chart),
-      chart_svg: render_chart(String.to_atom(chart), socket.assigns.selected_browser, socket.assigns.selected_ip)
+      chart_svg: render_chart(String.to_atom(chart), socket.assigns.selected_browser, socket.assigns.selected_ip, socket.assigns.selected_device)
     )}
   end
 
-  def handle_event("filter", %{"browser" => "", "ip" => ""}, socket) do
-    handle_event("filter", %{"browser" => nil, "ip" => nil}, socket)
+  def handle_event("filter", %{"browser" => "", "ip" => "", "device" => ""}, socket) do
+    handle_event("filter", %{"browser" => nil, "ip" => nil, "device" => nil}, socket)
   end
 
-  def handle_event("filter", %{"browser" => "", "ip" => ip}, socket) do
-    handle_event("filter", %{"browser" => nil, "ip" => ip}, socket)
-  end
-
-  def handle_event("filter", %{"browser" => browser, "ip" => ""}, socket) do
-    handle_event("filter", %{"browser" => browser, "ip" => nil}, socket)
-  end
-
-  def handle_event("filter", %{"browser" => browser, "ip" => ip}, socket) do
+  def handle_event("filter", %{"browser" => browser, "ip" => ip, "device" => device}, socket) do
     {:noreply, assign(socket,
       selected_browser: browser,
       selected_ip: ip,
-      chart_svg: render_chart(socket.assigns.selected_chart, browser, ip)
+      selected_device: device,
+      chart_svg: render_chart(socket.assigns.selected_chart, browser, ip, device)
     )}
   end
 
   def render(assigns) do
     ~H"""
     <div class="p-4">
+      <div class="absolute top-4 right-4">
+        <a href="/" class="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md">Go back</a>
+      </div>
       <h1 class="text-xl font-semibold text-center mb-4">Clicks Chart</h1>
 
       <div class="flex flex-wrap justify-center gap-4 mb-4">
@@ -68,6 +66,12 @@ defmodule ClickhouseMetricsWeb.ClickChartLive do
               <option value={ip} selected={@selected_ip == ip}><%= ip %></option>
             <% end %>
           </select>
+          <select name="device" class="w-56 px-4 py-2 border rounded-md text-base">
+            <option value="">All Devices</option>
+            <%= for device <- @devices do %>
+              <option value={device} selected={@selected_device == device}><%= device %></option>
+            <% end %>
+          </select>
         </form>
       </div>
 
@@ -78,16 +82,16 @@ defmodule ClickhouseMetricsWeb.ClickChartLive do
     """
   end
 
-  defp render_chart(type, browser_filter \\ nil, ip_filter \\ nil) do
+  defp render_chart(type, browser_filter \\ nil, ip_filter \\ nil, device_filter \\ nil) do
     browser_filter
-    |> fetch_clicks(ip_filter, type)
+    |> fetch_clicks(ip_filter, device_filter, type)
     |> build_dataset(type)
     |> Plot.new(BarChart, 600, 400)
     |> Plot.to_svg()
   end
 
-  defp fetch_clicks(browser_filter, ip_filter, type) do
-    ClickhouseMetrics.list_clicks(browser_filter, ip_filter)
+  defp fetch_clicks(browser_filter, ip_filter, device_filter, type) do
+    ClickhouseMetrics.list_clicks(browser_filter, ip_filter, device_filter)
     |> Enum.frequencies_by(&get_grouping_key(&1, type))
     |> ensure_non_empty()
   end
@@ -99,5 +103,4 @@ defmodule ClickhouseMetricsWeb.ClickChartLive do
 
   defp get_grouping_key(%{date: date}, :daily), do: date
   defp get_grouping_key(click, type), do: Map.get(click, type)
-
 end

@@ -8,16 +8,6 @@ defmodule ClickhouseMetrics.UserAgentParser do
     }
   end
 
-  def parse(_), do: %{browser: "Unknown", os: "Unknown"}
-
-  defp format_version(family, %UAParser.Version{major: major, minor: minor}) do
-    case {major, minor} do
-      {nil, _} -> family
-      {_, nil} -> "#{family} #{major}"
-      _ -> "#{family} #{major}.#{minor}"
-    end
-  end
-
   defp format_version(family, nil), do: family || "Unknown"
   defp format_version(family, %UAParser.Version{major: nil, minor: nil}), do: family || "Unknown"
   defp format_version(family, %UAParser.Version{major: major, minor: nil}), do: "#{family} #{major}"
