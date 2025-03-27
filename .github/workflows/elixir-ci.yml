@@ -1,0 +1,67 @@
+name: Elixir CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.15"
+          otp-version: "26"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: mix-${{ runner.os }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: mix-${{ runner.os }}-
+
+      - name: Cache build artifacts
+        uses: actions/cache@v3
+        with:
+          path: _build
+          key: build-${{ runner.os }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: build-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Install Phoenix
+        run: mix archive.install hex phx_new --force
+
+      - name: Compile
+        run: mix compile --warnings-as-errors
+
+      - name: Start Docker containers
+        run: docker-compose up -d
+        env:
+          MIX_ENV: test
+
+      - name: Wait for services to be ready
+        run: sleep 10
+
+      - name: Run migrations 
+        run: mix ecto.migrate
+        env:
+          MIX_ENV: test
+
+      - name: Run tests
+        run: mix test --color
+
+      - name: Stop Docker containers
+        run: docker-compose down
