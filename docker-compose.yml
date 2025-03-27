@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_USER: "default"
+      CLICKHOUSE_PASSWORD: "password123"
+      CLICKHOUSE_DB: "metrics"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+
+  postgres:
+    image: postgres:15
+    container_name: oban_postgres
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: clickhouse_metrics
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  clickhouse_data:
+  postgres_data:
