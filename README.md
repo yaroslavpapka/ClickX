@@ -1,76 +1,120 @@
-🚀 Phoenix Project
+Clickhouse Metrics Tracker
+Overview
 
-📌 Overview
+The Clickhouse Metrics Tracker is a web application that tracks button clicks and stores metrics (IP, browser, device) in Clickhouse. All clicks are processed in the background using Oban, and data is visualized in real-time on a graph.
 
-Phoenix is a web-based click tracking system powered by ClickHouse. It collects click events, stores them efficiently, and provides visual insights via interactive charts. 📊🔥
+    Clickhouse for Analytics: Stores and analyzes click data.
 
-✨ Features
+    PostgreSQL: Stores metadata and application settings.
 
-🛠️ ClickHouse Integration: High-performance analytics for storing and querying click data.
+    Oban: Processes clicks in the background.
 
-🐳 Dockerized Environment: ClickHouse runs in a Docker container for easy setup.
+    Real-Time Graph: Displays click data over time, by IP, or by browser.
 
-🎯 Click Tracking: Records key metrics:
+Getting Started
+Installation
 
-⏳ Timestamp
+    Clone the repository:
 
-📱 Device Type
-
-🌍 IP Address
-
-🌐 Browser Details
-
-⚡ Batch Processing: Clicks are temporarily stored and inserted into ClickHouse in batches every 30 seconds.
-
-📈 Analytics Dashboard: View and filter click trends:
-
-🔍 Filter by Time Range
-
-🖥️ Filter by Browser
-
-🌐 Filter by IP Address
-
-📥 Installation Steps
-
-Clone the repository:
-
-git clone https://github.com/yourusername/phoenix-project.git
-cd phoenix-project
-
-Start ClickHouse in Docker:
-
-docker-compose up -d
+git clone <repository_url>
+cd clickhouse_metrics_tracker
 
 Install dependencies:
 
-npm install  # or pip install -r requirements.txt if backend uses Python
+mix deps.get
+mix ecto.setup
 
-Run the application:
+Start the Phoenix server:
 
-npm start  # or python app.py
+mix phx.server
 
-🗄️ Database Schema
+Open your browser and go to:
 
-Click events are stored in ClickHouse with the following structure:
+    http://localhost:4000
 
-CREATE TABLE click_events (
-    timestamp DateTime,
-    device String,
+Docker Compose
+
+You can use the following docker-compose.yml to start PostgreSQL and Clickhouse:
+
+version: "3"
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: metrics_db
+    ports:
+      - "5432:5432"
+
+  clickhouse:
+    image: yandex/clickhouse-server:latest
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+
+volumes:
+  clickhouse-data:
+
+Modules & Features
+📊 Click Metrics Tracking
+
+    Every button click is tracked with IP, browser, and device information.
+
+    Data is stored in both PostgreSQL and Clickhouse for later analysis.
+
+Clickhouse Table for Metrics:
+
+CREATE TABLE metrics
+(
+    event_time DateTime,
     ip String,
-    browser String
+    browser String,
+    device String
 ) ENGINE = MergeTree()
-ORDER BY timestamp;
+ORDER BY event_time;
 
-🔗 API Endpoints
+🛠️ Oban Background Processing
 
-POST /click: Records a button click. 🖱️
+Each click is processed in the background using Oban to insert it into Clickhouse.
+Oban Worker for Click Processing:
 
-GET /stats: Returns aggregated click statistics. 📊
+defmodule ClickhouseMetricsTracker.Workers.BatchInsert do
+  use Oban.Worker, queue: :clickhouse
 
-🚀 Future Improvements
+  @impl Oban.Worker
+  def perform(_job) do
+    # Logic for batch inserting clicks into Clickhouse
+  end
+end
 
-🔐 Add user authentication
+📈 Click Graph
 
-⚡ Optimize batch insert performance
+A graph is displayed on the webpage showing the number of clicks over time. You can filter the graph by:
 
-🎨 Enhance frontend UI
+    Date range
+
+    Browser
+
+    IP
+
+📤 Batch Insert to Clickhouse
+
+Every 60 seconds, we batch insert all the clicks processed by Oban into Clickhouse for efficient querying.
+Deployment
+
+For production deployment, refer to the official Phoenix Deployment Guide.
+Technologies
+
+    Elixir & Phoenix: For building the web application.
+
+    Clickhouse: For storing and analyzing click data.
+
+    PostgreSQL: For metadata and application settings.
+
+    Oban: For background job processing.
+
+    Chart.js: For displaying the click graph.
+
