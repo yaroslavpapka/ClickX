@@ -18,7 +18,8 @@ defmodule ClickhouseMetrics.Application do
       # {ClickhouseMetrics.Worker, arg},
       # Start to serve requests, typically the last entry
       ClickhouseMetricsWeb.Endpoint,
-      {Oban, Application.fetch_env!(:clickhouse_metrics, Oban)}
+      {Oban, Application.fetch_env!(:clickhouse_metrics, Oban)},
+      ClickhouseMetrics.MetricsScheduler
     ]
     ClickhouseMetrics.create_metrics_table()
     # See https://hexdocs.pm/elixir/Supervisor.html

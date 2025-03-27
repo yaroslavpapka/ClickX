@@ -21,12 +21,16 @@ defmodule ClickhouseMetricsWeb.ClickLive do
     </div>
     """
   end
+
   def handle_event("click", _params, socket) do
-    with %{browser: browser, os: device} <- UserAgentParser.parse(socket.assigns.user_agent),
-         :ok <- MetricsStore.add_click(socket.assigns.ip, socket.assigns.user_agent, browser, device) do
-      {:noreply, socket}
-    else
-      _ -> {:noreply, socket}
+    case MetricsStore.add_click(
+           socket.assigns.ip,
+           socket.assigns.user_agent,
+           Map.get(UserAgentParser.parse(socket.assigns.user_agent), :browser, "Unknown"),
+           Map.get(UserAgentParser.parse(socket.assigns.user_agent), :os, "Unknown")
+         ) do
+      {:ok, _} -> {:noreply, put_flash(socket, :info, "Your data will be in ClickHouse in 10 seconds.")}
+      _ -> {:noreply, put_flash(socket, :info, "Error")}
     end
   end
 
@@ -38,14 +42,30 @@ defmodule ClickhouseMetricsWeb.ClickLive do
   end
 
   defp get_ip(socket) do
-    with {:ok, headers} <- get_connect_info(socket, :x_headers),
-         {_, ip} <- Enum.find(headers, fn {key, _} -> String.downcase(key) == "x-forwarded-for" end),
-         [first_ip | _] <- String.split(ip, ","),
-         trimmed_ip <- String.trim(first_ip) do
-      trimmed_ip
-    else
-      _ -> get_peer_ip(socket)
+    socket
+    |> get_connect_info(:x_headers)
+    |> maybe_get_ip()
+    |> case do
+      nil -> get_peer_ip(socket)
+      ip -> ip
     end
+  end
+
+  defp maybe_get_ip(nil), do: nil
+  defp maybe_get_ip(headers) do
+    headers
+    |> Enum.find_value(fn {key, ip} ->
+      if String.downcase(key) == "x-forwarded-for", do: ip
+    end)
+    |> maybe_parse_ip()
+  end
+
+  defp maybe_parse_ip(nil), do: nil
+  defp maybe_parse_ip(ip) do
+    ip
+    |> String.split(",", trim: true)
+    |> List.first()
+    |> String.trim()
   end
 
   defp get_peer_ip(socket) do

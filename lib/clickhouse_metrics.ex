@@ -41,10 +41,10 @@ defmodule ClickhouseMetrics do
     end
   end
 
-  def list_clicks(browser_filter, ip_filter) do
+  def list_clicks(browser_filter \\ nil, ip_filter \\ nil, device_filter \\ nil) do
     {:ok, conn} = Ch.start_link(@clickhouse_opts)
 
-    where_clause = build_where_clause(browser_filter, ip_filter)
+    where_clause = build_where_clause(browser_filter, ip_filter, device_filter)
 
     query = """
     SELECT
@@ -67,11 +67,11 @@ defmodule ClickhouseMetrics do
     end
   end
 
-  defp build_where_clause(nil, nil), do: ""
+  defp build_where_clause(nil, nil, nil), do: ""
 
-  defp build_where_clause(browser_filter, ip_filter) do
+  defp build_where_clause(browser_filter, ip_filter, device_filter) do
     filters =
-      [build_filter("browser", browser_filter), build_filter("ip", ip_filter)]
+      [build_filter("browser", browser_filter), build_filter("ip", ip_filter), build_filter("device", device_filter)]
       |> Enum.filter(& &1)
       |> Enum.join(" AND ")
 

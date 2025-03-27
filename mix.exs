@@ -62,8 +62,7 @@ defmodule ClickhouseMetrics.MixProject do
       {:ch, "~> 0.3.2"},
       {:ua_parser, "~> 1.8"},
       {:oban, "~> 2.19"},
-      {:contex, "~> 0.5.0"},
-      {:dotenv, "~> 3.0.0"}
+      {:contex, "~> 0.5.0"}
     ]
   end
 
