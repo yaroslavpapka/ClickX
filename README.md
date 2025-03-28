@@ -3,7 +3,7 @@
 ## Video Presentation
 
 Watch the introduction and demo of Clickhouse Metrics Tracker here:  
-[![Clickhouse Metrics Tracker Demo](https://img.youtube.com/vi/yfUdwzG2ao4/0.jpg)](https://youtu.be/yfUdwzG2ao4)
+[![Clickhouse Metrics Tracker Demo](https://img.youtube.com/vi/yfUdwzG2ao4/0.jpg)](https://youtu.be/kuetfwI_F4w)
 
 ## Overview
 
@@ -58,7 +58,7 @@ Ensure you have **Docker** and **Elixir** installed.
 
 ### Deployment
 ---
-You can visit this project here - https://clickhouse-rough-firefly-6810.fly.dev/
+You can visit this project here - https://clickhouse-little-frog-3300.fly.dev/
 ---
 
 ## Architecture
